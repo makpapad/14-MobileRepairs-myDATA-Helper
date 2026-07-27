@@ -1,24 +1,24 @@
 # 🏛️ MobileRepairs myDATA Helper
 
-> **Greek myDATA (AADE) & VIES Automation for Invoice Processing**
-> 
-> A Next.js 15 application that automates Greek tax compliance: PDF invoice extraction → AI classification → myDATA/VIES reporting.
+> **Αυτοματοποίηση Ελληνικού myDATA (ΑΑΔΕ) & VIES για Επεξεργασία Τιμολογίων**
+>
+> Εφαρμογή Next.js 15 που αυτοματοποιεί την Ελληνική φορολογική συμμόρφωση: εξαγωγή δεδομένων από PDF → ταξινόμηση με AI → αναφορά myDATA/VIES.
 
 ---
 
-## 🎯 What This Does
+## 🎯 Τι κάνει
 
-| Problem | Solution |
-|---------|----------|
-| **Manual invoice entry** | Upload PDFs → AI extracts structured data |
-| **Greek tax complexity** | Rule engine applies myDATA/VIES categories automatically |
-| **VIES Φ5 reporting** | Auto-groups by country/VAT → CSV/Excel export |
-| **VAT audit (Φ2)** | Dashboard with 364, 365, 361, reverse charge totals |
-| **Learning from corrections** | User fixes → Supplier Registry learns for next time |
+| Πρόβλημα | Λύση |
+|----------|------|
+| **Χειροκίνητη καταχώριση** | Ανέβασμα PDF → AI εξάγει δομημένα δεδομένα |
+| **Ελληνική φορολογική πολυπλοκότητα** | Rule engine εφαρμόζει κατηγορίες myDATA/VIES αυτόματα |
+| **Αναφορά VIES Φ5** | Αυτόματη ομαδοποίηση ανά χώρα/ΑΦΜ → CSV/Excel export |
+| **Έλεγχος ΦΠΑ (Φ2)** | Dashboard με αθροίσματα 364, 365, 361, reverse charge |
+| **Μάθηση από διορθώσεις** | Διορθώσεις χρήστη → Supplier Registry μαθαίνει για επόμενη φορά |
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Αρχιτεκτονική
 
 ```
 ┌─────────────┐     ┌──────────────────┐     ┌─────────────────┐     ┌──────────────────┐
@@ -33,16 +33,16 @@
 
 ---
 
-## 📊 Greek Tax Categories (4 Types)
+## 📊 Ελληνικές Φορολογικές Κατηγορίες (4 Τύποι)
 
-| Category | myDATA Type | VAT | VIES Column | Examples |
-|----------|-------------|-----|-------------|----------|
-| **EU Goods** | `14.1` | 0% | **Col 5** (Goods) | Marseus Computer Kft. |
-| **EU Services (Reverse Charge)** | `14.3` | 0% | **Col 7** (Services) | Google, Hetzner, OpenAI |
-| **OSS (24% Greek VAT)** | `14.3`/`11.4` | **24%** | **EXCLUDED** | Google Commerce |
-| **Domestic GR** | `1.1` | 24% | **EXCLUDED** | BOX NOW, ENTERSOFT |
+| Κατηγορία | myDATA Τύπος | ΦΠΑ | VIES Στήλη | Παραδείγματα |
+|-----------|-------------|-----|------------|--------------|
+| **EU Goods** | `14.1` | 0% | **Στ 5** (Αγαθά) | Marseus Computer Kft. |
+| **EU Services (Reverse Charge)** | `14.3` | 0% | **Στ 7** (Υπηρεσίες) | Google, Hetzner, OpenAI |
+| **OSS (24% Ελλ. ΦΠΑ)** | `14.3`/`11.4` | **24%** | **ΕΞΑΙΡΕΤΑΙ** | Google Commerce |
+| **Domestic GR** | `1.1` | 24% | **ΕΞΑΙΡΕΤΑΙ** | BOX NOW, ENTERSOFT |
 
-> ⚠️ **Rules enforced**: Goods never in VIES Col 7, OSS excluded from VIES, VAT prefix = country code.
+> ⚠️ **Κανόνες που επιβάλλονται**: Τα αγαθά ποτέ στη VIES Στ 7, OSS εξαιρείται από VIES, πρόθεμα ΦΠΑ = κωδικός χώρας.
 
 ---
 
@@ -56,7 +56,7 @@ cd 14-MobileRepairs-myDATA-Helper
 # 2. Install
 npm install
 
-# 3. First time: create local DB + seed data
+# 3. Πρώτη φορά: Δημιουργία τοπικής DB + sample data
 npx prisma migrate dev --name init
 npx prisma db seed          # 7 suppliers, 5 invoices pre-loaded
 
@@ -64,35 +64,35 @@ npx prisma db seed          # 7 suppliers, 5 invoices pre-loaded
 npm run dev                 # http://localhost:3000
 ```
 
-> **Note:** SQLite `dev.db` is created locally (not in git). Each developer gets their own via migrations.
+> **Σημείωση:** Το SQLite `dev.db` δημιουργείται τοπικά (δεν είναι στο git). Κάθε developer δημιουργεί τη δική του μέσω migrations.
 
 ---
 
 ## 🔑 Environment Variables
 
 ```env
-# .env (create from .env.example)
-DATABASE_URL="file:./dev.db"          # SQLite for dev
-GEMINI_API_KEY="your-gemini-key"      # For AI PDF extraction
+# .env (δημιουργήστε από .env.example)
+DATABASE_URL="file:./dev.db"           # SQLite για dev
+GEMINI_API_KEY="your-gemini-key"       # Για AI PDF extraction
 
-# Production (when ready)
-# DATABASE_URL="postgresql://user:pass@host:5432/db?schema=accounting"
+# Production (όταν είστε έτοιμοι)
+# DATABASE_URL="postgresql://user:***@host:5432/db?schema=accounting"
 # MYDATA_API_URL="https://mydata-prod.azure-api.net"
 # MYDATA_API_KEY="your-mydata-key"
 ```
 
 ---
 
-## 📱 Key Pages
+## 📱 Κύριες Σελίδες
 
-| Page | URL | Purpose |
-|------|-----|---------|
-| **Dashboard** | `/` | Overview + recent invoices + VIES totals |
-| **Invoices List** | `/invoices` | Filter by month, status, VIES, reverse charge |
-| **Upload PDFs** | `/invoices/upload` | Drag & drop multiple PDFs |
-| **Invoice Detail** | `/invoices/[id]` | Edit, approve, exclude, view myDATA proposal |
-| **VIES Report (Φ5)** | `/reports/vies` | Grouped by country/VAT → CSV/Excel export |
-| **VAT Report (Φ2)** | `/reports/vat` | 364, 365, 361, reverse charge, non-participating |
+| Σελίδα | URL | Σκοπός |
+|-------|-----|---------|
+| **Dashboard** | `/` | Επισκόπηση + πρόσφατα τιμολόγια + VIES αθροίσματα |
+| **Λίστα Τιμολογίων** | `/invoices` | Φιλτράρισμα ανά μήνα, status, VIES, reverse charge |
+| **Ανέβασμα PDF** | `/invoices/upload` | Drag & drop πολλαπλών PDF |
+| **Λεπτομέρειες** | `/invoices/[id]` | Επεξεργασία, έγκριση, αποκλεισμός, προβολή πρότασης myDATA |
+| **VIES Report (Φ5)** | `/reports/vies` | Ομαδοποιημένο ανά χώρα/ΑΦΜ → CSV/Excel export |
+| **VAT Report (Φ2)** | `/reports/vat` | 364, 365, 361, reverse charge, μη συμμετέχοντα |
 
 ---
 
@@ -103,7 +103,7 @@ GEMINI_API_KEY="your-gemini-key"      # For AI PDF extraction
 GEMINI_API_KEY="your-key-from-ai.google.dev"
 
 # Endpoints
-POST /api/gemini-extract      # Extract JSON from PDF
+POST /api/gemini-extract      # Extract JSON από PDF
 POST /api/invoices/upload     # Upload → Extract → Classify → Save
 ```
 
@@ -131,27 +131,27 @@ POST /api/invoices/upload     # Upload → Extract → Classify → Save
 
 ---
 
-## 🧠 Supplier Registry (Learning)
+## 🧠 Supplier Registry (Μάθηση)
 
-When you correct an invoice classification:
-1. **Single**: `POST /api/learn-correction` - learns from one invoice
-2. **Batch**: `POST /api/batch-learn` - learns from multiple at once
+Όταν διορθώνετε την ταξινόμηση ενός τιμολογίου:
+1. **Μονό**: `POST /api/learn-correction` - μαθαίνει από ένα τιμολόγιο
+2. **Batch**: `POST /api/batch-learn` - μαθαίνει από πολλά ταυτόχρονα
 
-Next time same supplier appears → auto-filled with learned classification.
+Επόμενη φορά που εμφανίζεται ο ίδιος προμηθευτής → αυτοσυμπλήρωση με τη διδαγμένη ταξινόμηση.
 
 ---
 
 ## 📦 API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/invoices/upload` | POST | Upload PDFs → extract → classify → save |
-| `/api/invoices/[id]` | GET/PATCH/DELETE | CRUD for single invoice |
-| `/api/classify` | POST | Test classification without upload |
-| `/api/gemini-extract` | POST | AI PDF extraction only |
-| `/api/learn-correction` | POST | Learn from single correction |
-| `/api/batch-learn` | POST | Learn from batch corrections |
-| `/api/mydata-submit` | POST | Submit approved to myDATA (stub) |
+| Endpoint | Method | Περιγραφή |
+|----------|--------|-----------|
+| `/api/invoices/upload` | POST | Ανέβασμα PDFs → extract → classify → save |
+| `/api/invoices/[id]` | GET/PATCH/DELETE | CRUD για ένα τιμολόγιο |
+| `/api/classify` | POST | Test ταξινόμησης χωρίς upload |
+| `/api/gemini-extract` | POST | Μόνο AI PDF extraction |
+| `/api/learn-correction` | POST | Μάθηση από μία διόρθωση |
+| `/api/batch-learn` | POST | Μάθηση από batch διορθώσεις |
+| `/api/mydata-submit` | POST | Υποβολή εγκεκριμένων στο myDATA (stub) |
 | `/api/reports/vies` | GET | VIES Φ5 export (CSV/Excel) |
 
 ---
@@ -175,9 +175,9 @@ npm run build         # Production build (11 routes)
 | **Framework** | Next.js 15 (App Router) |
 | **Database** | SQLite (dev) / PostgreSQL (prod) + Prisma ORM |
 | **AI** | Google Gemini 2.5 Flash (`@google/genai`) |
-| **Validation** | Zod schemas with Greek tax business rules |
+| **Validation** | Zod schemas με Ελληνικούς φορολογικούς κανόνες |
 | **PDF Parsing** | `pdf-parse` + Gemini OCR |
-| **Export** | `xlsx` for Excel, CSV for VIES |
+| **Export** | `xlsx` για Excel, CSV για VIES |
 | **UI** | Tailwind CSS 4 + custom components |
 | **Testing** | Vitest |
 
@@ -260,11 +260,11 @@ ISC License - Feel free to use for Greek tax compliance automation.
 
 ## 🙏 Acknowledgments
 
-- **AADE myDATA** - Greek tax authority API specifications
-- **Google Gemini** - Multimodal PDF understanding
+- **AADE myDATA** - Ελληνικές προδιαγραφές API φορολογίας
+- **Google Gemini** - Multimodal κατανόηση PDF
 - **Prisma** - Type-safe database access
 - **Next.js Team** - React framework
 
 ---
 
-*Built for Greek mobile repair businesses handling cross-border EU invoices. Automate the bureaucracy, focus on the repairs.* 🔧📱
+*Χτισμένο για Ελληνικές επιχειρήσεις κινητών που διαχειρίζονται διασυνόρια EU τιμολόγια. Αυτοματοποιήστε τη γραφειοκρατία, εστιάστε στις επισκευές.* 🔧📱
