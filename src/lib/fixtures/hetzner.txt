@@ -1,0 +1,9 @@
+Hetzner Online GmbH
+DE812871812
+Dedicated Server
+Invoice number HTZ-1001
+Invoice date 15/05/2026
+Net amount 68,35
+VAT 0,00
+Total 68,35
+Reverse Charge

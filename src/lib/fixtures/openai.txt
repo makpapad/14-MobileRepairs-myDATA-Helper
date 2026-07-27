@@ -1,0 +1,8 @@
+OpenAI Ireland Limited
+IE4143435AH
+Invoice number OAI-1001
+Invoice date 15/05/2026
+Subtotal 184,68
+VAT 0,00
+Total 184,68
+Tax to be paid on reverse charge basis

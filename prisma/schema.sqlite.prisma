@@ -1,0 +1,395 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model SupplierRegistry {
+  id                    String   @id @default(cuid())
+  name                  String
+  vatNumber             String?  @unique
+  countryCode           String
+  supplierType          SupplierType
+  invoiceKind           InvoiceKind
+  myDataInvoiceType     String?
+  expenseCategory       String?
+  e3Code                String?
+  vatClassification     String?
+  viesCountryCode       String?
+  viesVatNumber         String?
+  isActive              Boolean  @default(true)
+  learnedFromInvoiceId  String?
+  confidence            Float    @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([countryCode])
+  @@index([supplierType])
+  @@map("supplier_registry")
+}
+
+model Supplier {
+  id                       String       @id @default(cuid())
+  name                     String
+  countryCode              String
+  vatNumber                String?
+  defaultInvoiceType       String?
+  defaultExpenseCategory   String?
+  defaultE3Code            String?
+  defaultVatClassification String?
+  supplierType             SupplierType @default(unknown)
+  externalRef              String?
+  sourceApp                String?
+  createdAt                DateTime     @default(now())
+  updatedAt                DateTime     @updatedAt
+  invoices                 Invoice[]
+
+  @@unique([countryCode, vatNumber])
+  @@map("suppliers")
+}
+
+model Invoice {
+  id                   String        @id @default(cuid())
+  fileName             String
+  originalFilePath     String?
+  supplierId           String?
+  invoiceNumber        String?
+  invoiceDate          DateTime?
+  periodMonth          Int
+  periodYear           Int
+  currency             String        @default("EUR")
+  netAmountCents       Int           @default(0)
+  vatAmountCents       Int           @default(0)
+  grossAmountCents     Int           @default(0)
+  vatRate              Float         @default(0)
+  isReverseCharge      Boolean       @default(false)
+  isEu                 Boolean       @default(false)
+  isDomestic           Boolean       @default(false)
+  isNonEu              Boolean       @default(false)
+  invoiceKind          InvoiceKind   @default(unknown)
+  myDataInvoiceType    String?
+  expenseCategory      String?
+  e3Code               String?
+  vatClassification    String?
+  viesCountryCode      String?
+  viesVatNumber        String?
+  viesGoodsAmountCents Int           @default(0)
+  viesServicesAmountCents Int        @default(0)
+  status               InvoiceStatus @default(uploaded)
+  notes                String?
+  relatedRepairOrderId String?
+  relatedCustomerId    String?
+  relatedPaymentId     String?
+  sourceApp            String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  lines                InvoiceLine[]
+  supplier             Supplier?     @relation(fields: [supplierId], references: [id])
+
+  @@index([periodYear, periodMonth])
+  @@index([status])
+  @@index([supplierId])
+  @@map("invoices")
+}
+
+model InvoiceLine {
+  id                     String          @id @default(cuid())
+  invoiceId              String
+  description            String
+  netAmountCents         Int             @default(0)
+  vatRate                Float           @default(0)
+  vatAmountCents         Int             @default(0)
+  grossAmountCents       Int             @default(0)
+  lineType               InvoiceLineType @default(unknown)
+  expenseCategory        String?
+  e3Code                 String?
+  vatClassification      String?
+  relatedProductId       String?
+  relatedPartId          String?
+  relatedStockMovementId String?
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+  invoice                Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@map("invoice_lines")
+}
+
+model MyDataClassification {
+  id                String   @id @default(cuid())
+  invoiceType       String
+  expenseCategory   String
+  e3Code            String
+  vatClassification String
+  invoiceKind       String
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("mydata_classifications")
+}
+
+model ViesReport {
+  id                  String   @id @default(cuid())
+  month               Int
+  year                Int
+  countryCode         String
+  vatNumber           String
+  supplierName        String
+  goodsAmountCents    Int      @default(0)
+  servicesAmountCents Int      @default(0)
+  generatedFromStatus String?
+  createdAt           DateTime @default(now())
+
+  @@index([year, month])
+  @@map("vies_reports")
+}
+
+model VatReport {
+  id                      String   @id @default(cuid())
+  month                   Int?
+  quarter                 Int?
+  year                    Int
+  totalVat364Cents        Int      @default(0)
+  totalVat365Cents        Int      @default(0)
+  totalReverseChargeVatCents Int    @default(0)
+  totalVat361Cents        Int      @default(0)
+  totalNonParticipatingCents Int    @default(0)
+  createdAt               DateTime @default(now())
+
+  @@index([year, month])
+  @@map("vat_reports")
+}
+
+model MonthlyReport {
+  id                    String   @id @default(cuid())
+  month                 Int
+  year                  Int
+  totalViesGoodsCents   Int      @default(0)
+  totalViesServicesCents Int     @default(0)
+  totalVat364Cents      Int      @default(0)
+  totalVat365Cents      Int      @default(0)
+  totalReverseChargeVatCents Int @default(0)
+  createdAt             DateTime @default(now())
+
+  @@unique([year, month])
+  @@map("monthly_reports")
+}
+
+model accounting_document_lines {
+  id                           String               @id
+  documentId                   String
+  lineNumber                   String?
+  description                  String?
+  netAmountCents               Int                  @default(0)
+  vatRate                      Float                @default(0)
+  vatAmountCents               Int                  @default(0)
+  grossAmountCents             Int                  @default(0)
+  vatCategory                  String?
+  vatExemptionCategory         String?
+  incomeClassificationCategory String?
+  incomeClassificationType     String?
+  expenseCategory              String?
+  expenseClassificationType    String?
+  e3Code                       String?
+  vatClassification            String?
+  createdAt                    DateTime             @default(now())
+  updatedAt                    DateTime
+  accounting_documents         accounting_documents @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@map("accounting_document_lines")
+}
+
+model accounting_documents {
+  id                                                                                   String                      @id
+  direction                                                                            AccountingDirection
+  source                                                                               AccountingSource            @default(mydata)
+  mydataMark                                                                           String?
+  mydataUid                                                                            String?
+  authenticationCode                                                                   String?
+  issuerVat                                                                            String?
+  issuerName                                                                           String?
+  counterpartVat                                                                       String?
+  counterpartName                                                                      String?
+  issueDate                                                                            DateTime?
+  periodMonth                                                                          Int
+  periodYear                                                                           Int
+  invoiceType                                                                          String?
+  series                                                                               String?
+  aa                                                                                   String?
+  currency                                                                             String                      @default("EUR")
+  netAmountCents                                                                       Int                         @default(0)
+  vatAmountCents                                                                       Int                         @default(0)
+  grossAmountCents                                                                     Int                         @default(0)
+  vatRate                                                                              Float                       @default(0)
+  incomeClassificationCategory                                                         String?
+  incomeClassificationType                                                             String?
+  expenseCategory                                                                      String?
+  expenseClassificationType                                                            String?
+  e3Code                                                                               String?
+  vatCategory                                                                          String?
+  vatClassification                                                                    String?
+  vatExemptionCategory                                                                 String?
+  countryCode                                                                          String?
+  vatNumber                                                                            String?
+  isReverseCharge                                                                      Boolean                     @default(false)
+  isVies                                                                               Boolean                     @default(false)
+  viesGoodsAmountCents                                                                 Int                         @default(0)
+  viesServicesAmountCents                                                              Int                         @default(0)
+  status                                                                               AccountingDocumentStatus    @default(synced)
+  rawPayload                                                                           Json?
+  notes                                                                                String?
+  relatedRepairOrderId                                                                 String?
+  relatedCustomerId                                                                    String?
+  relatedPaymentId                                                                     String?
+  relatedProductId                                                                     String?
+  relatedPartId                                                                        String?
+  relatedStockMovementId                                                               String?
+  externalRef                                                                          String?
+  sourceApp                                                                            String?
+  createdAt                                                                            DateTime                    @default(now())
+  updatedAt                                                                            DateTime
+  accounting_document_lines                                                            accounting_document_lines[]
+  reconciliation_matches_reconciliation_matches_mydataDocumentIdToaccounting_documents reconciliation_matches[]    @relation("reconciliation_matches_mydataDocumentIdToaccounting_documents")
+  reconciliation_matches_reconciliation_matches_pdfDocumentIdToaccounting_documents    reconciliation_matches[]    @relation("reconciliation_matches_pdfDocumentIdToaccounting_documents")
+
+  @@unique([direction, mydataMark])
+  @@unique([direction, mydataUid])
+  @@index([direction, status])
+  @@index([periodYear, periodMonth])
+  @@index([source])
+  @@map("accounting_documents")
+}
+
+model mydata_sync_runs {
+  id           String           @id
+  dateFrom     DateTime
+  dateTo       DateTime
+  kind         MyDataSyncKind
+  status       MyDataSyncStatus
+  fetched      Int              @default(0)
+  created      Int              @default(0)
+  updated      Int              @default(0)
+  errors       Int              @default(0)
+  needsReview  Int              @default(0)
+  errorMessage String?
+  createdAt    DateTime         @default(now())
+
+  @@index([dateFrom, dateTo])
+  @@map("mydata_sync_runs")
+}
+
+model reconciliation_matches {
+  id                                                                                 String                @id
+  pdfDocumentId                                                                      String?
+  mydataDocumentId                                                                   String?
+  status                                                                             ReconciliationStatus
+  score                                                                              Float                 @default(0)
+  differences                                                                        Json?
+  createdAt                                                                          DateTime              @default(now())
+  updatedAt                                                                          DateTime
+  accounting_documents_reconciliation_matches_mydataDocumentIdToaccounting_documents accounting_documents? @relation("reconciliation_matches_mydataDocumentIdToaccounting_documents", fields: [mydataDocumentId], references: [id])
+  accounting_documents_reconciliation_matches_pdfDocumentIdToaccounting_documents    accounting_documents? @relation("reconciliation_matches_pdfDocumentIdToaccounting_documents", fields: [pdfDocumentId], references: [id])
+
+  @@index([mydataDocumentId])
+  @@index([pdfDocumentId])
+  @@index([status])
+  @@map("reconciliation_matches")
+}
+
+enum SupplierType {
+  eu_goods
+  eu_services
+  domestic_goods
+  domestic_services
+  non_eu_services
+  personal
+  unknown
+
+  @@map("SupplierType")
+}
+
+enum InvoiceKind {
+  goods
+  services
+  mixed
+  unknown
+
+  @@map("InvoiceKind")
+}
+
+enum InvoiceStatus {
+  uploaded
+  parsed
+  needs_review
+  approved
+  excluded
+
+  @@map("InvoiceStatus")
+}
+
+enum InvoiceLineType {
+  goods
+  services
+  shipping
+  bank_fee
+  personal
+  unknown
+
+  @@map("InvoiceLineType")
+}
+
+enum AccountingDirection {
+  income
+  expense
+
+  @@map("AccountingDirection")
+}
+
+enum AccountingDocumentStatus {
+  synced
+  needs_review
+  approved
+  excluded
+  ready_for_submission
+
+  @@map("AccountingDocumentStatus")
+}
+
+enum AccountingSource {
+  mydata
+  manual
+  pdf
+
+  @@map("AccountingSource")
+}
+
+enum MyDataSyncKind {
+  income
+  expense
+  all
+
+  @@map("MyDataSyncKind")
+}
+
+enum MyDataSyncStatus {
+  success
+  partial
+  failed
+
+  @@map("MyDataSyncStatus")
+}
+
+enum ReconciliationStatus {
+  matched
+  possible_match
+  unmatched_pdf
+  unmatched_mydata
+
+  @@map("ReconciliationStatus")
+}

@@ -1,0 +1,8 @@
+Google One
+Google Commerce Limited
+IE9825613N
+Invoice number ONE-1001
+Invoice date 15/05/2026
+Net amount 10,00
+VAT 24% 2,40
+Total 12,40

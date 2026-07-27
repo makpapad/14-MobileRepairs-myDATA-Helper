@@ -1,0 +1,7 @@
+BOX NOW AE
+Ελλάδα
+Invoice number BOX-1001
+Invoice date 15/05/2026
+Καθαρή αξία 8,00
+ΦΠΑ 24% 1,92
+Σύνολο 9,92
