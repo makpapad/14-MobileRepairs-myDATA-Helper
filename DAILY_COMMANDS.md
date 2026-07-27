@@ -1,4 +1,4 @@
-# 📋 Daily Usage Commands - MobileRepairs myDATA Helper
+---
 
 ## 🚀 Quick Start
 
@@ -7,8 +7,16 @@
 git clone https://github.com/makpapad/14-MobileRepairs-myDATA-Helper.git
 cd 14-MobileRepairs-myDATA-Helper
 npm install
+
+# First time: create local database from migrations
+npx prisma migrate dev --name init
+npx prisma db seed          # Load sample data (7 suppliers, 5 invoices)
+
 npm run dev          # → http://localhost:3000
 ```
+
+> **⚠️ Σημαντικό:** Το `dev.db` (SQLite database) **ΔΕΝ είναι στο git** (είναι στο `.gitignore`).
+> Κάθε developer δημιουργεί τη δική του τοπικά μέσω των migrations.
 
 ---
 
